@@ -1,4 +1,3 @@
-import { Card, Grid, Row, Text } from '@nextui-org/react';
 import { GetStaticProps, NextPage } from 'next';
 import { PokemonList } from '../components/pokemon';
 import { PokemonListResponse, SmallPokemon } from '../interfaces';

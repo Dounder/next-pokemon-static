@@ -4,7 +4,7 @@ import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import { useState } from 'react';
 
 import { useFavorites } from '../../hooks';
-import { Pokemon } from '../../interfaces';
+import { Pokemon, PokemonListResponse } from '../../interfaces';
 import { Layout } from '../../layouts';
 import { getPokemonInfo } from '../../utils';
 
@@ -12,7 +12,7 @@ interface Props {
   pokemon: Pokemon;
 }
 
-const PokemonPage: NextPage<Props> = ({ pokemon }) => {
+const PokemonNamePage: NextPage<Props> = ({ pokemon }) => {
   const { toggleFavorite, existInFavorites } = useFavorites();
 
   const [isFavorite, setIsFavorite] = useState(existInFavorites(pokemon.id));
@@ -105,19 +105,23 @@ const PokemonPage: NextPage<Props> = ({ pokemon }) => {
 };
 
 export const getStaticPaths: GetStaticPaths = async (ctx) => {
-  const ids = [...Array(151)].map((_, index) => `${index + 1}`);
+  const resp = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151', {
+    method: 'GET',
+  });
+  const data = (await resp.json()) as PokemonListResponse;
+  const pokemons = data.results;
 
   return {
-    paths: ids.map((id) => ({ params: { id } })),
+    paths: pokemons.map(({ name }) => ({ params: { name } })),
     fallback: false,
   };
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { id } = params as { id: string };
+  const { name } = params as { name: string };
 
   return {
-    props: { pokemon: await getPokemonInfo(id) },
+    props: { pokemon: await getPokemonInfo(name) },
   };
 };
-export default PokemonPage;
+export default PokemonNamePage;
